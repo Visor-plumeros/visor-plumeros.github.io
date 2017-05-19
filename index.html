@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css" /><link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/MarkerCluster.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+        <link rel="stylesheet" href="css/leaflet-search.css" />
+        <link rel="stylesheet" href="css/Control.OSMGeocoder.css" />
+        <link rel="stylesheet" href="css/leaflet-measure.css" />
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet-heat.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/OSMBuildings-Leaflet.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/leaflet-tilelayer-wmts.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/Control.OSMGeocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/Zonadeestudio3.js"></script>
+        <script src="data/Cortaderiaselloana4.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[43.5044078913,-5.75436806566],[43.5075928061,-5.7487166449]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.addAttribution('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a>');
+        L.control.locate().addTo(map);
+        var measureControl = new L.Control.Measure({
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        function geoJson2heat(geojson, weight) {
+          return geojson.features.map(function(feature) {
+            return [
+              feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+              feature.properties[weight]
+            ];
+          });
+        }
+            var overlay_PNOA0 = L.tileLayer.wms('http://www.ign.es/wms-inspire/pnoa-ma?', {
+                layers: 'OI.OrthoimageCoverage',
+                format: 'image/png',
+                uppercase: true,
+                transparent: true,
+                continuousWorld : true,
+                opacity: 1.0
+            });
+        map.addLayer(overlay_PNOA0);
+        var img_Ortofotoinfrarrojo1 = 'data/Ortofotoinfrarrojo1.png';
+        var img_bounds_Ortofotoinfrarrojo1 = [[43.5038342883,-5.75499193754],[43.5084198501,-5.74904772397]];
+        var overlay_Ortofotoinfrarrojo1 = new L.imageOverlay(img_Ortofotoinfrarrojo1, img_bounds_Ortofotoinfrarrojo1);
+        bounds_group.addLayer(overlay_Ortofotoinfrarrojo1);
+        map.addLayer(overlay_Ortofotoinfrarrojo1);
+        var img_Ortofotovisible2 = 'data/Ortofotovisible2.png';
+        var img_bounds_Ortofotovisible2 = [[43.504360882,-5.75388315093],[43.5078606454,-5.74943620806]];
+        var overlay_Ortofotovisible2 = new L.imageOverlay(img_Ortofotovisible2, img_bounds_Ortofotovisible2);
+        bounds_group.addLayer(overlay_Ortofotovisible2);
+        map.addLayer(overlay_Ortofotovisible2);
+        function pop_Zonadeestudio3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    layer.setStyle(style_Zonadeestudio3(feature));
+
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['id'] !== null ? Autolinker.link(String(feature.properties['id'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function style_Zonadeestudio3() {
+            return {
+                pane: 'pane_Zonadeestudio3',
+                opacity: 1,
+                color: 'rgba(255,255,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 1,
+                fillColor: 'rgba(72,134,68,0.0)',
+            }
+        }
+        map.createPane('pane_Zonadeestudio3');
+        map.getPane('pane_Zonadeestudio3').style.zIndex = 403;
+        map.getPane('pane_Zonadeestudio3').style['mix-blend-mode'] = 'normal';
+    var layer_Zonadeestudio3 = new L.geoJson(json_Zonadeestudio3, {
+        attribution: '<a href=""></a>',
+        pane: 'pane_Zonadeestudio3',
+        onEachFeature: pop_Zonadeestudio3,
+        style: style_Zonadeestudio3
+    });
+        bounds_group.addLayer(layer_Zonadeestudio3);
+        map.addLayer(layer_Zonadeestudio3);
+        function pop_Cortaderiaselloana4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    layer.setStyle(style_Cortaderiaselloana4(feature));
+
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['FID'] !== null ? Autolinker.link(String(feature.properties['FID'])) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Area</strong><br />' + (feature.properties['Area'] !== null ? Autolinker.link(String(feature.properties['Area'])) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function style_Cortaderiaselloana4() {
+            return {
+                pane: 'pane_Cortaderiaselloana4',
+                opacity: 1,
+                color: 'rgba(255,1,1,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 1,
+                fillColor: 'rgba(119,194,112,0.0)',
+            }
+        }
+        map.createPane('pane_Cortaderiaselloana4');
+        map.getPane('pane_Cortaderiaselloana4').style.zIndex = 404;
+        map.getPane('pane_Cortaderiaselloana4').style['mix-blend-mode'] = 'normal';
+    var layer_Cortaderiaselloana4 = new L.geoJson(json_Cortaderiaselloana4, {
+        attribution: '<a href=""></a>',
+        pane: 'pane_Cortaderiaselloana4',
+        onEachFeature: pop_Cortaderiaselloana4,
+        style: style_Cortaderiaselloana4
+    });
+        bounds_group.addLayer(layer_Cortaderiaselloana4);
+        map.addLayer(layer_Cortaderiaselloana4);
+        var osmGeocoder = new L.Control.OSMGeocoder({
+            collapsed: false,
+            position: 'topright',
+            text: 'Search',
+        });
+        osmGeocoder.addTo(map);
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/Cortaderiaselloana4.png" /> Cortaderia selloana': layer_Cortaderiaselloana4,'<img src="legend/Zonadeestudio3.png" /> Zona de estudio': layer_Zonadeestudio3,"Ortofoto visible": overlay_Ortofotovisible2,"Ortofoto infrarrojo": overlay_Ortofotoinfrarrojo1,"PNOA": overlay_PNOA0,},{collapsed:false}).addTo(map);
+        setBounds();
+        map.addControl(new L.Control.Search({
+            layer: layer_Cortaderiaselloana4,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'FID'}));
+        </script>
+    </body>
+</html>
